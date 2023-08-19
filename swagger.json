@@ -1,0 +1,466 @@
+{
+  "swagger": "2.0",
+  "info": {
+    "description": "This is an Model API for E-Commerce Platform. The Products are fetched from Dummy Json API. For More Information https://dummyjson.com. Rate Limit Has been Used. 100 hits per 24 hours",
+    "version": "2.4.32",
+    "title": "E-Commerce API",
+    "termsOfService": "http://swagger.io/terms/",
+    "contact": {
+      "name": "Vishnu Prasanna",
+      "email": "vishnuprasanna14@gmail.com"
+    }
+  },
+  "schemes": ["https"],
+  "host": "e-shop-3bc33811bce6.herokuapp.com",
+  "basePath": "/api/v1",
+  "tags": [
+    { "name": "Users" },
+    { "name": "Products" },
+    { "name": "Orders" },
+    { "name": "Cart" }
+  ],
+
+  "paths": {
+    "/products/get-categories": {
+      "get": {
+        "tags": ["Products"],
+        "summary": "Get all the Available Categories",
+        "description": "All the Available Categories will be fetched and return as an array",
+        "produces": ["application/json"],
+        "responses": {
+          "200": {
+            "description": "successful operation",
+            "schema": { "type": "array", "items": { "type": "string" } }
+          },
+          "500": {
+            "description": "Server Error",
+            "schema": { "type": "string" }
+          }
+        }
+      }
+    },
+    "/products/get-products": {
+      "get": {
+        "tags": ["Products"],
+        "summary": "Returns List of products",
+        "description": "Based on the query {Either Category name or Category Id}, the List of products available in that category will be returned",
+
+        "produces": ["application/json"],
+        "parameters": [
+          {
+            "name": "categoryName",
+            "in": "query",
+            "description": "The name of the category for which the list of products to be returned",
+            "type": "string"
+          },
+          {
+            "name": "categoryId",
+            "in": "query",
+            "description": "The ID of the category for which the list of products to be returned",
+            "type": "string"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "successful operation",
+            "schema": {
+              "type": "array",
+              "items": { "$ref": "#/definitions/Products" }
+            }
+          },
+          "500": {
+            "description": "Server Error",
+            "schema": { "type": "string" }
+          }
+        }
+      }
+    },
+    "/products/get-product": {
+      "get": {
+        "tags": ["Products"],
+        "summary": "Returns a single Product",
+        "description": "Based on the Product Id passed in the query, It will return the single Product",
+        "produces": ["application/json"],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "query",
+            "description": "The ID of the Prduct to be found",
+            "required": true,
+            "type": "string"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "successful operation",
+            "schema": {
+              "type": "object",
+              "$ref": "#/definitions/Product"
+            }
+          },
+          "400": {
+            "description": "Product Not Found",
+            "schema": { "type": "string" }
+          }
+        }
+      }
+    },
+
+    "/users/signup": {
+      "post": {
+        "tags": ["Users"],
+        "summary": "SignUp",
+        "description": "Provided a valid email and other Details, a new user will be created an Token will be given",
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+
+            "required": true,
+            "schema": {
+              "type": "object",
+              "$ref": "#/definitions/SignupData"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "successful operation",
+            "schema": {
+              "type": "object",
+              "$ref": "#/definitions/Signup"
+            }
+          }
+        }
+      }
+    },
+    "/users/login": {
+      "post": {
+        "tags": ["Users"],
+        "summary": "Login User",
+        "description": "Provided a Valid Email and Correct Password, a Token will be given",
+
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+
+            "required": true,
+            "schema": {
+              "type": "string",
+              "$ref": "#/definitions/LoginData"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "successful operation",
+            "schema": {
+              "type": "object",
+              "$ref": "#/definitions/Login"
+            }
+          },
+          "400": {
+            "description": "UnAuthorized Login",
+            "schema": {
+              "type": "string"
+            }
+          },
+          "500": {
+            "description": "Internal Server Error",
+            "schema": {
+              "type": "string"
+            }
+          }
+        }
+      }
+    },
+    "/users/get-user": {
+      "get": {
+        "tags": ["Users"],
+        "summary": "Get User The Details",
+        "description": "Provided a Valid Token in the Query, which is not Expired the corresponing user details will be fetched",
+
+        "parameters": [
+          {
+            "name": "token",
+            "in": "query",
+            "description": "Token",
+            "required": true,
+            "type": "string"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "successful operation",
+            "schema": {
+              "type": "object",
+              "$ref": "#/definitions/UserData"
+            }
+          },
+          "400": {
+            "description": "UnAuthorized Login",
+            "schema": {
+              "type": "string"
+            }
+          },
+          "500": {
+            "description": "Internal Server Error",
+            "schema": {
+              "type": "string"
+            }
+          }
+        }
+      }
+    },
+    "/cart/put-item": {
+      "put": {
+        "tags": ["Cart"],
+        "summary": "Add Item to the Cart",
+        "description": "Provided a Valid Product Id in the body and a Valid Token in the Query, The Item will be added to that User's Cart",
+
+        "parameters": [
+          {
+            "name": "token",
+            "in": "query",
+            "description": "Token",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "id",
+            "in": "body",
+            "description": "ID of the Product",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "$ref": "#/definitions/CartId"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "successful operation",
+            "schema": {
+              "type": "string"
+            }
+          },
+          "400": {
+            "description": "UnAuthorized Login",
+            "schema": {
+              "type": "string"
+            }
+          },
+          "500": {
+            "description": "Internal Server Error",
+            "schema": {
+              "type": "string"
+            }
+          },
+          "404": {
+            "description": "Product Not Found",
+            "schema": { "type": "string" }
+          },
+          "502": {
+            "description": "Bad Request",
+            "schema": { "type": "string" }
+          }
+        }
+      }
+    },
+    "/cart/delete-item": {
+      "delete": {
+        "tags": ["Cart"],
+        "summary": "Delete Item From the Cart",
+        "description": "Provided a Valid Product Id in the body and a Valid Token in the Query, The Item will be deleted from that User's Cart",
+
+        "parameters": [
+          {
+            "name": "token",
+            "in": "query",
+            "description": "Token",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "id",
+            "in": "body",
+            "description": "ID of the Product",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "$ref": "#/definitions/CartId"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "successful operation",
+            "schema": {
+              "type": "string"
+            }
+          },
+          "400": {
+            "description": "UnAuthorized Login",
+            "schema": {
+              "type": "string"
+            }
+          },
+          "500": {
+            "description": "Internal Server Error",
+            "schema": {
+              "type": "string"
+            }
+          },
+          "404": {
+            "description": "Product Not Found",
+            "schema": { "type": "string" }
+          },
+          "502": {
+            "description": "Bad Request",
+            "schema": { "type": "string" }
+          }
+        }
+      }
+    },
+    "/orders/place-orders": {
+      "post": {
+        "tags": ["Orders"],
+        "summary": "Place Orders",
+        "description": "Provided a Valid List of Product Id in the body and a Valid Token in the Query, The Item will be ordered for that user",
+
+        "parameters": [
+          {
+            "name": "token",
+            "in": "query",
+            "description": "Token",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "orders",
+            "in": "body",
+            "description": "ID of the Product",
+            "required": true,
+            "schema": { "type": "string", "$ref": "#/definitions/Orders" }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "successful operation",
+            "schema": {
+              "type": "string"
+            }
+          },
+          "400": {
+            "description": "UnAuthorized Login",
+            "schema": {
+              "type": "string"
+            }
+          },
+          "500": {
+            "description": "Internal Server Error",
+            "schema": {
+              "type": "string"
+            }
+          },
+          "404": {
+            "description": "Product Not Found",
+            "schema": { "type": "string" }
+          },
+          "502": {
+            "description": "Bad Request",
+            "schema": { "type": "string" }
+          }
+        }
+      }
+    }
+  },
+  "definitions": {
+    "Orders": {
+      "type": "object",
+      "properties": {
+        "orders": { "type": "array", "items": { "type": "string" } }
+      }
+    },
+    "CartId": {
+      "type": "object",
+      "properties": {
+        "id": { "type": "string" }
+      }
+    },
+    "Products": {
+      "type": "object",
+      "properties": {
+        "id": { "type": "string" },
+        "title": { "type": "string" },
+        "prize": { "type": "string" },
+        "image": { "type": "string" },
+        "categoryId": { "type": "string" },
+        "categoryName": { "type": "string" },
+        "available": { "type": "boolean" }
+      }
+    },
+    "Product": {
+      "type": "object",
+      "properties": {
+        "_id": { "type": "string" },
+        "id": { "type": "string" },
+        "title": { "type": "string" },
+        "prize": { "type": "string" },
+        "image": { "type": "string" },
+        "categoryId": { "type": "string" },
+        "categoryName": { "type": "string" },
+        "available": { "type": "boolean" },
+        "description": { "type": "string" }
+      }
+    },
+    "UserData": {
+      "type": "object",
+      "properties": {
+        "email": { "type": "string" },
+        "userName": { "type": "string" },
+        "phone": { "type": "string" },
+        "cart": {
+          "type": "array",
+          "items": { "type": "object", "$ref": "#/definitions/Product" }
+        },
+        "orders": {
+          "type": "array",
+          "items": { "type": "object", "$ref": "#/definitions/Product" }
+        }
+      }
+    },
+    "Signup": {
+      "type": "object",
+      "properties": {
+        "token": { "type": "string" },
+        "validity": { "type": "string" },
+        "msg": { "type": "string" }
+      }
+    },
+    "SignupData": {
+      "type": "object",
+      "properties": {
+        "email": { "type": "string" },
+        "userName": { "type": "string" },
+        "password": { "type": "string" },
+        "phone": { "type": "string" }
+      }
+    },
+    "Login": {
+      "type": "object",
+      "properties": {
+        "userData": { "type": "object", "$ref": "#/definitions/UserData" },
+        "token": { "type": "string" }
+      }
+    },
+    "LoginData": {
+      "type": "object",
+      "properties": {
+        "email": { "type": "string" },
+        "password": { "type": "string" }
+      }
+    }
+  }
+}
